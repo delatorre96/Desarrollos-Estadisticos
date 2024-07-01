@@ -11,6 +11,15 @@ np.random.seed(123)
 
 
 def columnasCategoricas(df):
+    """
+    Identifies categorical columns in the dataframe.
+    
+    Parameters:
+    df (pandas.DataFrame): The input dataframe.
+    
+    Returns:
+    list: A list of column names that are of object type.
+    """
     columnas_categoricas = []
     for columna in df.columns:
         if df[columna].dtype == 'O':
@@ -21,11 +30,15 @@ def columnasCategoricas(df):
 
 def varsMasCorrelacionadas_diccionario (df, varDependiente, minCorr = 0.5):
     """
-    Función para sacar las variables más correlacionadas para una variable. 
-    Retorna una lista de las variables más correlacionadas con la Y
-    - minCorr(float): Mínima correlación para la cuál seleccionamos una variable x
-    - varDependiente (string): Variable  para la cuál correlacionamos todas las variables, en string y una columna del data frame
-    - df (pandas.DataFrame): Variables  para las cuáles sacamos correlaciones
+    Identifies variables most correlated with the dependent variable.
+    
+    Parameters:
+    df (pandas.DataFrame): The input dataframe.
+    varDependiente (str): The dependent variable.
+    minCorr (float): Minimum correlation threshold.
+    
+    Returns:
+    dict: A dictionary of variables and their correlation values.
     """
     y = df[varDependiente]
     correlaciones_dict = {columna: y.corr(df[columna]) for columna in df.columns}
@@ -33,6 +46,17 @@ def varsMasCorrelacionadas_diccionario (df, varDependiente, minCorr = 0.5):
     return correlaciones_dict   
     
 def vars_interaccion(df):
+    """
+    Identifies variables most correlated with the dependent variable.
+    
+    Parameters:
+    df (pandas.DataFrame): The input dataframe.
+    varDependiente (str): The dependent variable.
+    minCorr (float): Minimum correlation threshold.
+    
+    Returns:
+    dict: A dictionary of variables and their correlation values.
+    """
     vars_interaccion = {}
     for col1 in df.columns:
         for col2 in df.columns:
@@ -48,11 +72,15 @@ def vars_interaccion(df):
 
 def varsMasCorrelacionadas (df, varDependiente, minCorr = 0.5):
     """
-    Función para sacar las variables más correlacionadas para una variable. 
-    Retorna una lista de las variables más correlacionadas con la Y
-    - minCorr(float): Mínima correlación para la cuál seleccionamos una variable x
-    - varDependiente (string): Variable  para la cuál correlacionamos todas las variables, en string y una columna del data frame
-    - df (pandas.DataFrame): Variables  para las cuáles sacamos correlaciones
+    Identifies variables most correlated with the dependent variable.
+    
+    Parameters:
+    df (pandas.DataFrame): The input dataframe.
+    varDependiente (str): The dependent variable.
+    minCorr (float): Minimum correlation threshold.
+    
+    Returns:
+    list: A list of variable names with correlation values above the threshold.
     """
     y = df[varDependiente]
     correlaciones_dict = {columna: y.corr(df[columna]) for columna in df.columns}
@@ -60,6 +88,17 @@ def varsMasCorrelacionadas (df, varDependiente, minCorr = 0.5):
     return correlaciones_lista
     
 def varsMasImportantesArbol (df, varDependiente, minUmbral = 0.05): 
+    """
+    Identifies important variables using a decision tree model.
+    
+    Parameters:
+    df (pandas.DataFrame): The input dataframe.
+    varDependiente (str): The dependent variable.
+    minUmbral (float): Minimum importance threshold.
+    
+    Returns:
+    list: A list of important variable names.
+    """
     X = df.copy().drop(varDependiente, axis = 1)
     y = df[varDependiente]
     if len(list(y.unique())) == 2:
@@ -81,10 +120,16 @@ def varsMasImportantesArbol (df, varDependiente, minUmbral = 0.05):
     
 def residuo (varsIndependientes, varDependiente, df,intercept = False):
     """
-    Función para reresión de x sobre y. 
-    - varDependiente (string): Variable dependiente para la cuál correlacionamos todas las variables
-    - varsIndependientes (string): Variables independientes para las cuáles sacamos correlaciones
-    -df : dataFrame
+    Calculates the residuals of a regression model.
+    
+    Parameters:
+    varsIndependientes (list): List of independent variables.
+    varDependiente (str): Dependent variable.
+    df (pandas.DataFrame): The input dataframe.
+    intercept (bool): Whether to include an intercept in the regression.
+    
+    Returns:
+    numpy.ndarray: The residuals of the regression.
     """
     if list(df[varDependiente].unique()) == [0, 1]:
         modelo_regresion = LinearRegression()
@@ -101,10 +146,16 @@ def residuo (varsIndependientes, varDependiente, df,intercept = False):
     
 def estimacion (varsIndependientes, varDependiente, df,intercept = False):
     """
-    Función para reresión de x sobre y. 
-    - varDependiente (string): Variable dependiente para la cuál correlacionamos todas las variables
-    - varsIndependientes (string): Variables independientes para las cuáles sacamos correlaciones
-    -df : dataFrame
+    Estimates the dependent variable using a regression model.
+    
+    Parameters:
+    varsIndependientes (list): List of independent variables.
+    varDependiente (str): Dependent variable.
+    df (pandas.DataFrame): The input dataframe.
+    intercept (bool): Whether to include an intercept in the regression.
+    
+    Returns:
+    numpy.ndarray: The estimated values of the dependent variable.
     """
     #if list(df[varDependiente].unique()) == [0, 1]:
     #    modelo_regresion = LinearRegression()
@@ -118,12 +169,19 @@ def estimacion (varsIndependientes, varDependiente, df,intercept = False):
     return varDependiente_hat
         
 def instrumentos_exogenos (df, var_ind, var_dep, minUmbral, funcSeleccionVars = varsMasCorrelacionadas):
-    '''
-    La idea de esta función es demostrar que los instrumentos son exógenos de cara no 
-    al modelo de regresión inicial sino al modelo que se utiliza para estimar la x.
-    Para ello, se hace otro mc2e en el que a dichos instrumentos se le pasa una tercera regresión VI
-    La idea sería como "no me importa que tengan poca correlación en tanto sean exógenos."
-    '''
+    """
+    Identifies exogenous instruments for a set of independent variables.
+    
+    Parameters:
+    df (pandas.DataFrame): The input dataframe.
+    var_ind (list): List of independent variables.
+    var_dep (str): Dependent variable.
+    minUmbral (float): Minimum importance threshold.
+    funcSeleccionVars (function): Function to select variables.
+    
+    Returns:
+    dict: A dictionary indicating whether each variable is exogenous.
+    """
     alfa = 0.05
     instrumentos_exogenos = {}
     for x_i in var_ind:
@@ -155,6 +213,19 @@ def instrumentos_exogenos (df, var_ind, var_dep, minUmbral, funcSeleccionVars = 
     return instrumentos_exogenos
     
 def vars_endogena (df, var_ind, var_dep, minUmbral ,funcSeleccionVars = varsMasCorrelacionadas):
+    """
+    Identifies endogenous variables in a set of independent variables.
+    
+    Parameters:
+    df (pandas.DataFrame): The input dataframe.
+    var_ind (list): List of independent variables.
+    var_dep (str): Dependent variable.
+    minUmbral (float): Minimum importance threshold.
+    funcSeleccionVars (function): Function to select variables.
+    
+    Returns:
+    dict: A dictionary of endogenous variables and their instruments.
+    """
     alfa = 0.05
     instrumentos = {}
     for x_i in var_ind:
@@ -189,6 +260,21 @@ def vars_endogena (df, var_ind, var_dep, minUmbral ,funcSeleccionVars = varsMasC
     return instrumentos
     
 def regresion(X, y, const = 1):
+    """
+    Perform OLS regression.
+
+    Parameters:
+    X : DataFrame or ndarray
+        Independent variables.
+    y : Series or ndarray
+        Dependent variable.
+    const : int, optional
+        Whether to include a constant (default is 1, include constant).
+
+    Returns:
+    results : RegressionResults
+        Results of the regression.
+    """
     if const == 1:
         X = sm.add_constant(X)
     #if list(y.unique()) == [0,1]:
@@ -201,6 +287,23 @@ def regresion(X, y, const = 1):
 
 ##Calculamos un arbol de regresiones de varibles instrumentales, miramos si son edógenas o no 
 def mc2e_tree(df, y, funcSeleccionVars = varsMasCorrelacionadas, minUmbral = 0.4):
+    """
+    Construct a regression tree using instrumental variables.
+
+    Parameters:
+    df : DataFrame
+        Dataset containing all variables.
+    y : str
+        Dependent variable name.
+    funcSeleccionVars : function, optional
+        Function to select independent variables (default is varsMasCorrelacionadas).
+    minUmbral : float, optional
+        Minimum correlation threshold for variable selection (default is 0.4).
+
+    Returns:
+    tree : dict
+        Tree structure representing the regression model.
+    """
     if funcSeleccionVars == varsMasCorrelacionadas:
         x = funcSeleccionVars (varDependiente = y, df = df, minCorr = minUmbral)
     if funcSeleccionVars == varsMasImportantesArbol:
@@ -220,8 +323,23 @@ def mc2e_tree(df, y, funcSeleccionVars = varsMasCorrelacionadas, minUmbral = 0.4
         print('Se hace estimación por variables instrumentales')
         return tree
         
-#Hacemos la regresion de dicho arbol
+
 def regTree (df, tree, y):
+    """
+    Perform regression based on a regression tree.
+
+    Parameters:
+    df : DataFrame
+        Dataset containing all variables.
+    tree : dict
+        Tree structure representing the regression model.
+    y : str
+        Dependent variable name.
+
+    Returns:
+    model_reg : RegressionResults
+        Results of the regression.
+    """
     df_x = {}
     for i in tree[y]:
         if tree[y][i] != None:
@@ -249,6 +367,27 @@ def regTree (df, tree, y):
 
 
 def regTreeSinMultiSinX (df, y, funcSeleccionVars, minUmbral, summary = True):
+    """
+    Perform regression tree without multicollinearity and without using matrix X (this matrix is identified automatically).
+
+    Parameters:
+    df : DataFrame
+        Dataset containing all variables.
+    y : str
+        Dependent variable name.
+    funcSeleccionVars : function
+        Function to select independent variables.
+    minUmbral : float
+        Minimum correlation threshold for variable selection.
+    summary : bool, optional
+        Whether to return summary of regression results (default is True).
+
+    Returns:
+    tree : dict
+        Tree structure representing the regression model.
+    summary : str or RegressionResults
+        Summary of regression results if summary=True, otherwise None.
+    """
     tree = mc2e_tree(df = df, y = y, funcSeleccionVars = varsMasImportantesArbol, minUmbral = 0.005)
     regTree (df = df, tree = tree, y = y)
     if summary == True:
@@ -259,7 +398,21 @@ def regTreeSinMultiSinX (df, y, funcSeleccionVars, minUmbral, summary = True):
 ####Si queremos evaluar multicolinealidad automáticamente:
 
 def reducir_variables_aleatoriamente(X, y, umbral_condicional):
-    # Función para realizar el proceso de eliminación de variables hasta que el número condicional sea aceptable
+    """
+    Reduce variables randomly to manage multicollinearity.
+
+    Parameters:
+    X : DataFrame
+        Independent variables.
+    y : Series or ndarray
+        Dependent variable.
+    umbral_condicional : float
+        Threshold for the condition number to manage multicollinearity.
+
+    Returns:
+    model_reg : RegressionResults
+        Results of the regression after reducing variables.
+    """
     num_variables_a_eliminar = 1
     vars_usadas = []
     while num_variables_a_eliminar <= len(X.columns):
@@ -287,6 +440,21 @@ def reducir_variables_aleatoriamente(X, y, umbral_condicional):
 
 
 def regTreeMulti (df, tree, y):
+    """
+    Perform regression with handling multicollinearity.
+
+    Parameters:
+    df : DataFrame
+        Dataset containing all variables.
+    tree : dict
+        Tree structure representing the regression model.
+    y : str
+        Dependent variable name.
+
+    Returns:
+    model_reg2 : RegressionResults
+        Results of the regression with multicollinearity handling.
+    """
     df_x = {}
     for i in tree[y]:
         if tree[y][i] != None:
@@ -316,6 +484,25 @@ def regTreeMulti (df, tree, y):
     
 
 def regTreeMultiSinX (df, y, minUmbral, funcSeleccionVars = varsMasCorrelacionadas):
+    """
+    Perform regression with handling multicollinearity without using X.
+
+    Parameters:
+    df : DataFrame
+        Dataset containing all variables.
+    y : str
+        Dependent variable name.
+    minUmbral : float
+        Minimum correlation threshold for variable selection.
+    funcSeleccionVars : function, optional
+        Function to select independent variables (default is varsMasCorrelacionadas).
+
+    Returns:
+    tree : dict
+        Tree structure representing the regression model.
+    model_reg : RegressionResults
+        Results of the regression with multicollinearity handling.
+    """
     while minUmbral > 0:
         tree = mc2e_tree(df, y, funcSeleccionVars = varsMasCorrelacionadas, minUmbral = minUmbral)
         df_x = {}
