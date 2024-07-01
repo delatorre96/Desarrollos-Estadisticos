@@ -1,54 +1,62 @@
-# RegressionTools
+# Regression-Analysis-Toolkit
 
-This repository contains Python functions for performing regression analysis and related tasks, including handling multicollinearity. These functions utilize the `statsmodels` library for regression modeling.
+This repository contains scripts and utilities for data analysis and regression modeling tasks. The scripts are organized into several modules for different aspects of the analysis process.
 
-## Functions Included:
+## Modules
 
-1. **regresion(X, y, const=1)**:
-   - Perform Ordinary Least Squares (OLS) regression.
-   
-2. **mc2e_tree(df, y, funcSeleccionVars, minUmbral)**:
-   - Construct a regression tree using instrumental variables and handle endogeneity.
-   
-3. **regTree(df, tree, y)**:
-   - Perform regression based on a regression tree.
-   
-4. **regTreeSinMultiSinX(df, y, funcSeleccionVars, minUmbral, summary=True)**:
-   - Perform regression tree without multicollinearity and without using X.
-   
-5. **reducir_variables_aleatoriamente(X, y, umbral_condicional)**:
-   - Reduce variables randomly to manage multicollinearity.
-   
-6. **regTreeMulti(df, tree, y)**:
-   - Perform regression with handling multicollinearity.
-   
-7. **regTreeMultiSinX(df, y, minUmbral, funcSeleccionVars=varsMasCorrelacionadas)**:
-   - Perform regression with handling multicollinearity without using X.
+### 1. `data_utils.py`
 
-## How to Use:
+This module provides utility functions for data manipulation and preprocessing.
 
-- Clone the repository: `git clone https://github.com/your-username/RegressionTools.git`
-- Import the necessary functions into your Python environment.
-- Ensure you have `statsmodels`, `pandas`, and `numpy` installed.
+- **Functions:**
+  - `columnasCategoricas(df)`: Identifies categorical columns in the dataframe.
+  - `vars_interaccion(df)`: Creates interaction variables based on pairwise multiplication of columns.
+  - Add other data manipulation functions as needed.
 
-## Example Usage:
+### 2. `instrument_selection.py`
+
+This module contains functions for selecting exogenous and endogenous instruments.
+
+- **Functions:**
+  - `instrumentos_exogenos(df, var_ind, var_dep, minUmbral, funcSeleccionVars)`: Identifies exogenous instruments.
+  - `vars_endogena(df, var_ind, var_dep, minUmbral, funcSeleccionVars)`: Identifies endogenous variables and their instruments.
+  - Add other instrument selection functions as needed.
+
+### 3. `regression_analysis.py`
+
+This module includes functions for regression analysis and handling multicollinearity.
+
+- **Functions:**
+  - `residuo(varsIndependientes, varDependiente, df, intercept=False)`: Calculates residuals of a regression model.
+  - `multicolinealidad(X)`: Detects multicollinearity in independent variables.
+  - Add other regression analysis functions as needed.
+
+### 4. `variable_fussion.py`
+
+This module deals with merging or fusing variables from different sources.
+
+- **Functions:**
+  - Include functions related to merging or fusing variables.
+  - Ensure functions are well-documented and modular for reusability.
+
+### 5. `variable_selection.py`
+
+This module contains functions for selecting important variables in regression models.
+
+- **Functions:**
+  - `varsMasCorrelacionadas(df, varDependiente, minCorr)`: Identifies variables most correlated with the dependent variable.
+  - `varsMasImportantesArbol(df, varDependiente, minUmbral)`: Identifies important variables using decision tree models.
+  - Add other variable selection functions as needed.
+
+## Usage
+
+To use these modules, import them into your Python scripts or notebooks as needed. Here's an example of how you might import and use functions from these modules:
 
 ```python
-import pandas as pd
-from RegressionTools import regresion, mc2e_tree, regTree
+from data_utils import columnasCategoricas, vars_interaccion
+from instrument_selection import instrumentos_exogenos, vars_endogena
+from regression_analysis import residuo, multicolinealidad
+from variable_selection import varsMasCorrelacionadas, varsMasImportantesArbol
 
-# Load your dataset
-df = pd.read_csv('your_dataset.csv')
-
-# Example usage of functions
-X = df[['independent_var1', 'independent_var2']]
-y = df['dependent_var']
-
-# Perform OLS regression
-results = regresion(X, y)
-
-# Construct a regression tree and perform regression
-tree = mc2e_tree(df, y)
-regression_results = regTree(df, tree, y)
-print(regression_results.summary())
-
+# Example usage
+# Use functions from each module as per your analysis requirements
